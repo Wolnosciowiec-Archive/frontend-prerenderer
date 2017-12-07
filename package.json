@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "phantomjs25-beta": "^1.0.17"
+  }
+}
