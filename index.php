@@ -30,4 +30,20 @@ $originalRequest = \Symfony\Component\HttpFoundation\Request::createFromGlobals(
 $factory = new BrowserRequestFactory($client, $originalRequest);
 $controller = new RenderController($factory, $client, false);
 
-print($controller->renderAction());
+// send response to the browser
+$response = $controller->renderAction();
+$headers = $response->getHeaders();
+$headers['Content-Length'] = strlen($response->getContent() ?? '');
+
+// remove unwanted headers
+unset(
+    $headers['Content-Encoding'],
+    $headers['Cookie'],
+    $headers['Transfer-Encoding']
+);
+
+foreach ($headers as $headerName => $value) {
+    header($headerName . ': ' . $value);
+}
+
+echo $response->getContent();

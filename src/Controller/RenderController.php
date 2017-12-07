@@ -40,9 +40,9 @@ class RenderController
     }
 
     /**
-     * @return string
+     * @return Response
      */
-    public function renderAction(): string
+    public function renderAction(): Response
     {
         $this->client->getEngine()->addOption('--load-images=' . ($this->withImages ? 'true' : 'false') . '');
         $this->client->getEngine()->addOption('--ignore-ssl-errors=true');
@@ -62,6 +62,6 @@ class RenderController
         // send the request
         $this->client->send($request, $response);
 
-        return $response->getContent() ?? 'Error 503 - no response from browser';
+        return $response;
     }
 }
