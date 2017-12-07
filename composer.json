@@ -7,11 +7,15 @@
     "require": {
         "jonnyw/php-phantomjs": "dev-master",
         "symfony/dependency-injection": "3.3.9",
-        "symfony/http-foundation": "^4.0"
+        "symfony/http-foundation": "^4.0",
+        "symfony/yaml": "3.3.9",
+        "symfony/console": "3.3.9",
+        "robmorgan/phinx": "^0.9.1"
     },
     "scripts": {
         "post-install-cmd": [
-            "npm install"
+            "npm install",
+            "./vendor/bin/phinx migrate -e production"
         ],
 
         "web": [

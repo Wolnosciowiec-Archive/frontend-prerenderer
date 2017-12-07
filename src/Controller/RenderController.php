@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Factory\BrowserRequestFactory;
+use App\Manager\VisitedUrlsManager;
 use JonnyW\PhantomJs\Client;
 use JonnyW\PhantomJs\Http\Request;
 use JonnyW\PhantomJs\Http\Response;
@@ -28,15 +29,21 @@ class RenderController
     private $withImages;
 
     /**
+     * @var VisitedUrlsManager $manager
+     */
+    private $manager;
+
+    /**
      * @param BrowserRequestFactory $requestFactory
      * @param Client $client
      * @param bool $withImages
      */
-    public function __construct(BrowserRequestFactory $requestFactory, Client $client, bool $withImages = false)
+    public function __construct(BrowserRequestFactory $requestFactory, Client $client, bool $withImages = false, VisitedUrlsManager $manager)
     {
         $this->requestFactory = $requestFactory;
         $this->client         = $client;
         $this->withImages     = $withImages;
+        $this->manager        = $manager;
     }
 
     /**
@@ -52,7 +59,7 @@ class RenderController
          * @var Request $request
          **/
         $request = $this->requestFactory->createBrowserRequest();
-        $request->setDelay(2);
+        $request->setDelay(1);
 
         /**
          * @var Response $response
@@ -60,7 +67,13 @@ class RenderController
         $response = $this->client->getMessageFactory()->createResponse();
 
         // send the request
-        $this->client->send($request, $response);
+        $response = $this->client->send($request, $response);
+
+        $statusCode = $response->getStatus();
+        
+        if ($statusCode >= 200 && $statusCode < 300) {
+            $this->manager->addUrl($request->getUrl());
+        }
 
         return $response;
     }

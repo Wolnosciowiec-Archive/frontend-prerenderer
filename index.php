@@ -27,8 +27,9 @@ require __DIR__ . '/vendor/autoload.php';
 $client = \JonnyW\PhantomJs\Client::getInstance();
 $originalRequest = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
+$manager = new \App\Manager\VisitedUrlsManager();
 $factory = new BrowserRequestFactory($client, $originalRequest);
-$controller = new RenderController($factory, $client, false);
+$controller = new RenderController($factory, $client, false, $manager);
 
 // send response to the browser
 $response = $controller->renderAction();
