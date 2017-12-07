@@ -1,0 +1,21 @@
+{
+    "autoload": {
+      "psr-4": {
+        "App\\": "src"
+      }
+    },
+    "require": {
+        "jonnyw/php-phantomjs": "dev-master",
+        "symfony/dependency-injection": "3.3.9",
+        "symfony/http-foundation": "^4.0"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "npm install"
+        ],
+
+        "web": [
+            "php -S 0.0.0.0:8009 index.php"
+        ]
+    }
+}
