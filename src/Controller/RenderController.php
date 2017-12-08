@@ -59,7 +59,7 @@ class RenderController
          * @var Request $request
          **/
         $request = $this->requestFactory->createBrowserRequest();
-        $request->setDelay(1);
+        $request->setDelay(2);
 
         /**
          * @var Response $response
