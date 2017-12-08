@@ -22,7 +22,7 @@ class VisitedUrlsManager
      */
     public function addUrl(string $url)
     {
-        if ($this->hasUrl($url)) {
+        if (trim($url) === '' || $this->hasUrl($url)) {
             return;
         }
 
