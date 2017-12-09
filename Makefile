@@ -44,3 +44,7 @@ deploy:
 ## Run a development web server
 run_dev_server:
 	COMPOSER_PROCESS_TIMEOUT=9999999 composer run web
+
+## Regenerate the cache by re-visiting all pages that were already visited by bots (does not force regenerate)
+regenerate_cached_pages:
+	bash ./bin/reclick-cache.sh
