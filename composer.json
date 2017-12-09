@@ -12,6 +12,10 @@
         "symfony/console": "3.3.9",
         "robmorgan/phinx": "^0.9.1"
     },
+    "provide": {
+        "ext-bz2": "*",
+        "jakoch/phantomjs-installer": "*"
+    },
     "scripts": {
         "post-install-cmd": [
             "npm install",
