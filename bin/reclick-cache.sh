@@ -8,6 +8,7 @@ call_url() {
     curl -s -X GET \
       "$1" \
       -H 'cache-control: no-cache' \
+      -H 'X-Frontend-Prerenderer: no-cache' \
       -A "curl/reclick-cache" > /dev/null
 }
 
