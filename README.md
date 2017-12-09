@@ -2,7 +2,7 @@ Frontend Prerenderer
 ====================
 
 Uses PhantomJS to render a single-page application written in javascript.
-Useful for SEO and indexing by social media.
+Useful for SEO and indexing by social media. Works on LOW-END-BOXES, does not consume much ram memory.
 
 ```
 /*
