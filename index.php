@@ -27,6 +27,7 @@ use App\Factory\BrowserRequestFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 
+// use this config as a template to create your own in the config.php, but instead of "$config =" put "return"
 $config = [
     'skipped_headers' => [
         'content-length',
@@ -35,7 +36,8 @@ $config = [
         'accept-encoding',
         'x-frontend-prerenderer',
         'user-agent'
-    ]
+    ],
+    'delay' => 10
 ];
 
 if (is_file(__DIR__ . '/config.php')) {
@@ -47,7 +49,7 @@ $originalRequest = \Symfony\Component\HttpFoundation\Request::createFromGlobals(
 
 $manager = new \App\Manager\VisitedUrlsManager();
 $factory = new BrowserRequestFactory($client, $originalRequest, $config['skipped_headers']);
-$controller = new RenderController($factory, $client, false, $manager);
+$controller = new RenderController($factory, $client, false, $manager, $config['delay']);
 
 // send response to the browser
 $response = $controller->renderAction();

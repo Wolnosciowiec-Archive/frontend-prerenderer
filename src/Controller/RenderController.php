@@ -34,16 +34,17 @@ class RenderController
     private $manager;
 
     /**
-     * @param BrowserRequestFactory $requestFactory
-     * @param Client $client
-     * @param bool $withImages
+     * @var int $delay
      */
-    public function __construct(BrowserRequestFactory $requestFactory, Client $client, bool $withImages = false, VisitedUrlsManager $manager)
+    private $delay;
+
+    public function __construct(BrowserRequestFactory $requestFactory, Client $client, bool $withImages = false, VisitedUrlsManager $manager, int $delay)
     {
         $this->requestFactory = $requestFactory;
         $this->client         = $client;
         $this->withImages     = $withImages;
         $this->manager        = $manager;
+        $this->delay          = $delay;
     }
 
     /**
@@ -59,7 +60,7 @@ class RenderController
          * @var Request $request
          **/
         $request = $this->requestFactory->createBrowserRequest();
-        $request->setDelay(2);
+        $request->setDelay($this->delay);
 
         /**
          * @var Response $response
@@ -71,7 +72,7 @@ class RenderController
 
         $statusCode = $response->getStatus();
         
-        if ($statusCode >= 200 && $statusCode < 300) {
+        if ($statusCode >= 200 && $statusCode < 400) {
             $this->manager->addUrl($request->getUrl());
         }
 
