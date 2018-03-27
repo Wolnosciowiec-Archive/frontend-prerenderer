@@ -21,13 +21,20 @@ class BrowserRequestFactory
      */
     private $originalRequest;
 
+	/**
+	 * @var array $skippedHeaders
+	 */
+    private $skippedHeaders;
+
     /**
      * @param Client $client
+     * @param Request $originalRequest
      */
-    public function __construct(Client $client, Request $originalRequest)
+    public function __construct(Client $client, Request $originalRequest, array $skippedHeaders = [])
     {
         $this->client = $client;
         $this->originalRequest = $originalRequest;
+        $this->skippedHeaders = $skippedHeaders;
     }
 
     /**
@@ -35,9 +42,23 @@ class BrowserRequestFactory
      */
     public function createBrowserRequest(): RequestInterface
     {
-        return $this->client->getMessageFactory()->createRequest(
+        $browserRequest = $this->client->getMessageFactory()->createRequest(
             $this->originalRequest->getSchemeAndHttpHost() . $this->originalRequest->getRequestUri(),
             'GET'
         );
+
+        foreach ($this->originalRequest->headers->all() as $headerName => $values) {
+            if (in_array(strtolower($headerName), $this->skippedHeaders, true)) {
+                continue;
+            }
+
+            foreach ($values as $value) {
+                $browserRequest->addHeader($headerName, $value);
+            }
+        }
+
+        $browserRequest->setRequestData($this->originalRequest->request->all());
+
+        return $browserRequest;
     }
 }

@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+error_reporting(E_ALL);
+ini_set('display_errors', 'on');
+
 /*
  * Wolnościowiec / Frontend Pre-renderer
  * -------------------------------------
@@ -24,16 +27,32 @@ use App\Factory\BrowserRequestFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 
+$config = [
+    'skipped_headers' => [
+        'content-length',
+        'host',
+        'connection',
+        'accept-encoding',
+        'x-frontend-prerenderer',
+        'user-agent'
+    ]
+];
+
+if (is_file(__DIR__ . '/config.php')) {
+    $config = array_merge($config, include __DIR__ . '/config.php');
+}
+
 $client = \JonnyW\PhantomJs\Client::getInstance();
 $originalRequest = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
 $manager = new \App\Manager\VisitedUrlsManager();
-$factory = new BrowserRequestFactory($client, $originalRequest);
+$factory = new BrowserRequestFactory($client, $originalRequest, $config['skipped_headers']);
 $controller = new RenderController($factory, $client, false, $manager);
 
 // send response to the browser
 $response = $controller->renderAction();
 $headers = $response->getHeaders();
+
 $headers['Content-Length'] = strlen($response->getContent() ?? '');
 
 // remove unwanted headers
@@ -42,6 +61,8 @@ unset(
     $headers['Cookie'],
     $headers['Transfer-Encoding']
 );
+
+http_response_code($response->getStatus());
 
 foreach ($headers as $headerName => $value) {
     header($headerName . ': ' . $value);
