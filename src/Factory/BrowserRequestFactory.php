@@ -21,9 +21,9 @@ class BrowserRequestFactory
      */
     private $originalRequest;
 
-	/**
-	 * @var array $skippedHeaders
-	 */
+    /**
+     * @var array $skippedHeaders
+     */
     private $skippedHeaders;
 
     /**
