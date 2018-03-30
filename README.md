@@ -30,6 +30,10 @@ Useful for SEO and indexing by social media. Works on LOW-END-BOXES, does not co
 Create your `config.php` file in the root directory to override default settings.
 The `config.dist.php` is a default configuration file and can be copied in place of `config.php`
 
+## Installation
+
+`make deploy`
+
 ## Browser differencies
 
 | Feature          | Chromium                  | PhantomJS                                     |
