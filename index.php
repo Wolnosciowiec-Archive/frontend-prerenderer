@@ -79,7 +79,7 @@ $config     = $container->get(ConfigurationRepository::class);
 $request = Request::createFromGlobals();
 
 // prevalidation
-if (!in_array($request->getHttpHost(), $config->get('allowed_domains'), true)) {
+if (!empty($config->get('allowed_domains')) && !in_array($request->getHttpHost(), $config->get('allowed_domains'), true)) {
     emitResponse(new Response('Domain not allowed', Response::HTTP_FORBIDDEN), $request, $manager);
     exit();
 }
