@@ -1,81 +1,55 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Factory\BrowserRequestFactory;
-use App\Manager\VisitedUrlsManager;
-use JonnyW\PhantomJs\Client;
-use JonnyW\PhantomJs\Http\Request;
-use JonnyW\PhantomJs\Http\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Renders the page using PhantomJS
+ * Renders the page and dumps into a Response object
+ * by one of browsers
  */
-class RenderController
+class RenderController implements RenderInterface
 {
     /**
-     * @var BrowserRequestFactory $requestFactory
+     * @var RenderInterface[] $aggregatedControllers
      */
-    private $requestFactory;
+    private $aggregatedControllers;
 
     /**
-     * @var Client $client
+     * @var string $renderName
      */
-    private $client;
+    private $renderName;
 
-    /**
-     * @var bool $withImages
-     */
-    private $withImages;
-
-    /**
-     * @var VisitedUrlsManager $manager
-     */
-    private $manager;
-
-    /**
-     * @var int $delay
-     */
-    private $delay;
-
-    public function __construct(BrowserRequestFactory $requestFactory, Client $client, bool $withImages = false, VisitedUrlsManager $manager, int $delay)
+    public function __construct(array $aggregatedControllers, string $renderName)
     {
-        $this->requestFactory = $requestFactory;
-        $this->client         = $client;
-        $this->withImages     = $withImages;
-        $this->manager        = $manager;
-        $this->delay          = $delay;
+        $this->aggregatedControllers = $aggregatedControllers;
+        $this->renderName            = $renderName;
     }
 
     /**
-     * @return Response
+     * @inheritdoc
      */
-    public function renderAction(): Response
+    public function renderAction(Request $request): Response
     {
-        $this->client->getEngine()->addOption('--load-images=' . ($this->withImages ? 'true' : 'false') . '');
-        $this->client->getEngine()->addOption('--ignore-ssl-errors=true');
-        $this->client->getEngine()->setPath('./node_modules/.bin/phantomjs');
+        foreach ($this->aggregatedControllers as $controller) {
+            if ($controller->canRender($this->renderName)) {
+                return $controller->renderAction($request);
+            }
+        }
+    }
 
-        /**
-         * @var Request $request
-         **/
-        $request = $this->requestFactory->createBrowserRequest();
-        $request->setDelay($this->delay);
-
-        /**
-         * @var Response $response
-         **/
-        $response = $this->client->getMessageFactory()->createResponse();
-
-        // send the request
-        $response = $this->client->send($request, $response);
-
-        $statusCode = $response->getStatus();
-        
-        if ($statusCode >= 200 && $statusCode < 400) {
-            $this->manager->addUrl($request->getUrl());
+    /**
+     * @inheritdoc
+     */
+    public function canRender(string $renderName): bool
+    {
+        foreach ($this->aggregatedControllers as $controller) {
+            if ($controller->canRender($renderName)) {
+                return true;
+            }
         }
 
-        return $response;
+        return false;
     }
 }

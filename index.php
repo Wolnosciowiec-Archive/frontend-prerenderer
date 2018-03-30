@@ -22,52 +22,67 @@ ini_set('display_errors', 'on');
  *   License: LGPLv3
  */
 
-use App\Controller\RenderController;
-use App\Factory\BrowserRequestFactory;
+use App\Controller\RenderInterface;
+use App\Manager\VisitedUrlsManager;
+use App\Repository\ConfigurationRepository;
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 require __DIR__ . '/vendor/autoload.php';
 
-// use this config as a template to create your own in the config.php, but instead of "$config =" put "return"
-$config = [
-    'skipped_headers' => [
-        'content-length',
-        'host',
-        'connection',
-        'accept-encoding',
-        'x-frontend-prerenderer',
-        'user-agent'
-    ],
-    'delay' => 10
-];
+function emitResponse (Response $response, Request $request, VisitedUrlsManager $manager)
+{
+    $headers = $response->headers->all();
 
-if (is_file(__DIR__ . '/config.php')) {
-    $config = array_merge($config, include __DIR__ . '/config.php');
+    if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 400) {
+        $manager->addUrl($request->getRequestUri());
+    }
+
+    $headers['content-length'] = strlen($response->getContent() ?? '');
+
+    // remove unwanted headers
+    unset(
+        $headers['content-encoding'],
+        $headers['cookie'],
+        $headers['transfer-encoding']
+    );
+
+    http_response_code($response->getStatusCode());
+
+    foreach ($headers as $headerName => $values) {
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+
+        foreach ($values as $value) {
+            header($headerName . ': ' . $value);
+        }
+    }
+
+    echo $response->getContent();
 }
 
-$client = \JonnyW\PhantomJs\Client::getInstance();
-$originalRequest = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+// bootstrap
+$builder = new DI\ContainerBuilder();
+require_once __DIR__ . '/src/DependencyInjection/Services.php';
+$container = $builder->build();
 
-$manager = new \App\Manager\VisitedUrlsManager();
-$factory = new BrowserRequestFactory($client, $originalRequest, $config['skipped_headers']);
-$controller = new RenderController($factory, $client, false, $manager, $config['delay']);
+/**
+ * @var VisitedUrlsManager $manager
+ * @var RenderInterface $controller
+ * @var ConfigurationRepository $config
+ */
+$controller = $container->get(RenderInterface::class);
+$manager    = $container->get(VisitedUrlsManager::class);
+$config     = $container->get(ConfigurationRepository::class);
 
-// send response to the browser
-$response = $controller->renderAction();
-$headers = $response->getHeaders();
+// handle the request
+$request = Request::createFromGlobals();
 
-$headers['Content-Length'] = strlen($response->getContent() ?? '');
-
-// remove unwanted headers
-unset(
-    $headers['Content-Encoding'],
-    $headers['Cookie'],
-    $headers['Transfer-Encoding']
-);
-
-http_response_code($response->getStatus());
-
-foreach ($headers as $headerName => $value) {
-    header($headerName . ': ' . $value);
+// prevalidation
+if (!in_array($request->getHttpHost(), $config->get('allowed_domains'), true)) {
+    emitResponse(new Response('Domain not allowed', Response::HTTP_FORBIDDEN), $request, $manager);
+    exit();
 }
 
-echo $response->getContent();
+$response = $controller->renderAction($request);
+emitResponse($response, $request, $manager);

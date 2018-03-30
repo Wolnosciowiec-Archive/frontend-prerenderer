@@ -9,17 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Creates requests that will be telling the browser which page to open
  */
-class BrowserRequestFactory
+class PhantomRequestFactory
 {
     /**
      * @var Client $client
      */
     private $client;
-
-    /**
-     * @var Request $originalRequest
-     */
-    private $originalRequest;
 
     /**
      * @var array $skippedHeaders
@@ -28,26 +23,25 @@ class BrowserRequestFactory
 
     /**
      * @param Client $client
-     * @param Request $originalRequest
+     * @param array  $skippedHeaders
      */
-    public function __construct(Client $client, Request $originalRequest, array $skippedHeaders = [])
+    public function __construct(Client $client, array $skippedHeaders = [])
     {
         $this->client = $client;
-        $this->originalRequest = $originalRequest;
         $this->skippedHeaders = $skippedHeaders;
     }
 
     /**
      * @return RequestInterface
      */
-    public function createBrowserRequest(): RequestInterface
+    public function createBrowserRequest(Request $request): RequestInterface
     {
         $browserRequest = $this->client->getMessageFactory()->createRequest(
-            $this->originalRequest->getSchemeAndHttpHost() . $this->originalRequest->getRequestUri(),
+            $request->getSchemeAndHttpHost() . $request->getRequestUri(),
             'GET'
         );
 
-        foreach ($this->originalRequest->headers->all() as $headerName => $values) {
+        foreach ($request->headers->all() as $headerName => $values) {
             if (in_array(strtolower($headerName), $this->skippedHeaders, true)) {
                 continue;
             }
@@ -57,7 +51,7 @@ class BrowserRequestFactory
             }
         }
 
-        $browserRequest->setRequestData($this->originalRequest->request->all());
+        $browserRequest->setRequestData($request->request->all());
 
         return $browserRequest;
     }

@@ -1,7 +1,7 @@
 Frontend Prerenderer
 ====================
 
-Uses PhantomJS to render a single-page application written in javascript.
+Uses PhantomJS/Chromium to render a single-page application written in javascript.
 Useful for SEO and indexing by social media. Works on LOW-END-BOXES, does not consume much ram memory.
 
 ```
@@ -24,6 +24,20 @@ Useful for SEO and indexing by social media. Works on LOW-END-BOXES, does not co
  *   License: LGPLv3
  */
 ```
+
+## Configuration
+
+Create your `config.php` file in the root directory to override default settings.
+The `config.dist.php` is a default configuration file and can be copied in place of `config.php`
+
+## Browser differencies
+
+| Feature          | Chromium                  | PhantomJS                                     |
+| -------------    | -------------             | -----                                         |
+| Response body    | Fast fetch, waits for everything | Based on delay or timeout              |
+| Response headers | Not supported | Supported with exclusion list                             |
+| Response code    | Not supported             | Supported                                     |
+| Requirements     | Just the Chromium browser | The PhantomJS, and the NodeJS                 |
 
 ## Usage
 

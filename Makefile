@@ -31,6 +31,7 @@ help:
 
 ## Build the application by running preparation tasks such as composer install
 build:
+	npm install
 	composer install --dev
 
 ## Migrate the database

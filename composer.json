@@ -10,7 +10,9 @@
         "symfony/http-foundation": "^4.0",
         "symfony/yaml": "3.3.9",
         "symfony/console": "3.3.9",
-        "robmorgan/phinx": "^0.9.1"
+        "robmorgan/phinx": "^0.9.1",
+        "gsouf/chromium": "dev-master",
+        "php-di/php-di": "^6.0"
     },
     "provide": {
         "jakoch/phantomjs-installer": "*"
