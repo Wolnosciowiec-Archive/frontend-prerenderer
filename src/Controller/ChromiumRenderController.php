@@ -27,16 +27,23 @@ class ChromiumRenderController implements RenderInterface
      */
     private $openProcessLimit;
 
+    /**
+     * @var int $waitForProcessTime
+     */
+    private $waitForProcessTime;
+
     public function __construct(
         string $chromeBinary = 'chromium',
         bool $withImages = false,
         string $windowSize = '1920x1080',
-        int $openProcessLimit = 3)
+        int $openProcessLimit = 3,
+        int $waitForProcessTime = 4)
     {
-        $this->chromeBinary = $chromeBinary;
-        $this->withImages   = $withImages;
-        $this->windowSize   = $windowSize;
-        $this->openProcessLimit = $openProcessLimit;
+        $this->chromeBinary       = $chromeBinary;
+        $this->withImages         = $withImages;
+        $this->windowSize         = $windowSize;
+        $this->openProcessLimit   = $openProcessLimit;
+        $this->waitForProcessTime = $waitForProcessTime;
     }
 
     /**
@@ -58,7 +65,7 @@ class ChromiumRenderController implements RenderInterface
                    ' --dump-dom --window-size=' . $this->windowSize . ' "' . $url . '"';
 
         if (!$this->canSpawnNewProcess()) {
-            return new Response('Error: Too many requests', Response::HTTP_TOO_MANY_REQUESTS);
+            return new Response('Error: Too many requests. Open: ' . $this->getOpenedProcessesCount(), Response::HTTP_SERVICE_UNAVAILABLE);
         }
 
         return new Response($this->executeCommand($command));
@@ -90,15 +97,12 @@ class ChromiumRenderController implements RenderInterface
 
     private function canSpawnNewProcess(): bool
     {
+    	return true;
         if ($this->getOpenedProcessesCount() >= $this->openProcessLimit) {
-            sleep(4);
+            sleep($this->waitForProcessTime);
         }
 
-        if ($this->getOpenedProcessesCount() >= $this->openProcessLimit) {
-            return false;
-        }
-
-        return true;
+        return $this->getOpenedProcessesCount() < $this->openProcessLimit;
     }
 
     private function getOpenedProcessesCount(): int

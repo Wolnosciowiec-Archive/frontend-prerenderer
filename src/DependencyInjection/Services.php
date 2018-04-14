@@ -82,7 +82,8 @@ $builder->addDefinitions([
             $config->get('chromium_binary', 'chromium'),
             $config->get('with_images', false),
             $config->get('window_size', '1920x1080'),
-            $config->get('open_process_limit', 3)
+            $config->get('open_process_limit', 3),
+            $config->get('wait_for_process_time', 4)
         );
     }
 ]);

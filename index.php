@@ -29,11 +29,11 @@ use Symfony\Component\HttpFoundation\{Request, Response};
 
 require __DIR__ . '/vendor/autoload.php';
 
-function emitResponse (Response $response, Request $request, VisitedUrlsManager $manager)
+function emitResponse (Response $response, Request $request, VisitedUrlsManager $manager = null)
 {
     $headers = $response->headers->all();
 
-    if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 400) {
+    if ($manager !== null && $response->getStatusCode() >= 200 && $response->getStatusCode() < 400) {
         $manager->addUrl($request->getRequestUri());
     }
 
@@ -76,7 +76,22 @@ $manager    = $container->get(VisitedUrlsManager::class);
 $config     = $container->get(ConfigurationRepository::class);
 
 // handle the request
-$request = Request::createFromGlobals();
+$request   = Request::createFromGlobals();
+$customUrl = $request->headers->get('X-Render-Url');
+$isForwardedRequest = false;
+
+if ($customUrl && filter_var($customUrl, FILTER_VALIDATE_URL)) {
+    $request = Request::create(
+        $customUrl,
+        'GET',
+        [],
+        $request->cookies->all(),
+        $request->files->all(),
+        $request->server->all()
+    );
+
+    $isForwardedRequest = true;
+}
 
 // prevalidation
 if (!empty($config->get('allowed_domains')) && !in_array($request->getHttpHost(), $config->get('allowed_domains'), true)) {
@@ -85,4 +100,4 @@ if (!empty($config->get('allowed_domains')) && !in_array($request->getHttpHost()
 }
 
 $response = $controller->renderAction($request);
-emitResponse($response, $request, $manager);
+emitResponse($response, $request, $isForwardedRequest === false ? $manager : null);
