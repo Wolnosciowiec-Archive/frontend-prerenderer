@@ -97,7 +97,6 @@ class ChromiumRenderController implements RenderInterface
 
     private function canSpawnNewProcess(): bool
     {
-    	return true;
         if ($this->getOpenedProcessesCount() >= $this->openProcessLimit) {
             sleep($this->waitForProcessTime);
         }
