@@ -49,3 +49,7 @@ run_dev_server:
 ## Regenerate the cache by re-visiting all pages that were already visited by bots (does not force regenerate)
 regenerate_cached_pages:
 	bash ./bin/reclick-cache.sh
+
+## Run application test suites
+test:
+	./vendor/bin/phpunit -vvv

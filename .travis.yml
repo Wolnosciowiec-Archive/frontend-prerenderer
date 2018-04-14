@@ -17,3 +17,4 @@ matrix:
 script:
   - make build
   - make migrate
+  - make test

@@ -2,9 +2,6 @@
 
 namespace App\Manager;
 
-/**
- * @package App\Manager
- */
 class VisitedUrlsManager
 {
     /**

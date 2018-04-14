@@ -52,13 +52,40 @@ class ChromiumRenderController implements RenderInterface
         }
 
         $blinkSettings = $this->withImages ? '' : '--blink-settings=imagesEnabled=false ';
-        $command = $this->chromeBinary . ' --headless --no-sandbox --disable-gpu ' . $blinkSettings . ' --dump-dom --window-size=' . $this->windowSize . ' "' . $url . '"';
+        $command = $this->chromeBinary .
+                   ' --headless --no-sandbox --disable-gpu ' . $blinkSettings .
+                   ' ' . $this->buildProxyArgument($request) .
+                   ' --dump-dom --window-size=' . $this->windowSize . ' "' . $url . '"';
 
         if (!$this->canSpawnNewProcess()) {
-            return new Response('Error: Too many requests', 429);
+            return new Response('Error: Too many requests', Response::HTTP_TOO_MANY_REQUESTS);
         }
 
-        return new Response(shell_exec($command));
+        return new Response($this->executeCommand($command));
+    }
+
+    protected function executeCommand(string $command): string
+    {
+        return shell_exec($command) ?? '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canRender(string $renderName): bool
+    {
+        return in_array($renderName, ['chromium', 'chrome'], true);
+    }
+
+    private function buildProxyArgument(Request $request): string
+    {
+        $proxyAddress = (string) $request->headers->get('X-Proxy-Address');
+
+        if (filter_var($proxyAddress, FILTER_VALIDATE_URL) === false) {
+            return '';
+        }
+
+        return '--proxy-server=' . $proxyAddress;
     }
 
     private function canSpawnNewProcess(): bool
@@ -76,14 +103,6 @@ class ChromiumRenderController implements RenderInterface
 
     private function getOpenedProcessesCount(): int
     {
-        return count(array_filter(explode("\n", shell_exec('ps aux | grep "' . $this->chromeBinary . '" | grep -v grep | grep -v \'type=\'') ?? '')));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canRender(string $renderName): bool
-    {
-        return in_array($renderName, ['chromium', 'chrome'], true);
+        return count(array_filter(explode("\n", $this->executeCommand('ps aux | grep "' . $this->chromeBinary . '" | grep -v grep | grep -v \'type=\'') ?? '')));
     }
 }

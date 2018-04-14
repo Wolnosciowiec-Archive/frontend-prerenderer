@@ -42,6 +42,7 @@ The `config.dist.php` is a default configuration file and can be copied in place
 | Response headers | Not supported | Supported with exclusion list                             |
 | Response code    | Not supported             | Supported                                     |
 | Requirements     | Just the Chromium browser | The PhantomJS, and the NodeJS                 |
+| Proxy support    | Yes                       | No                                            |
 
 ## Usage
 
@@ -58,3 +59,15 @@ prerenderer, so accept it as a crawler on the webserver configuration just like 
 
 Schedule `./bin/reclick-cache.sh` to run eg. daily to regenerate the cache, so the crawlers could hit the cached version
 instead of waiting long for the page to load.
+
+## Proxy support
+
+_(Works only in Chromium)_
+
+By passing a header "X-Proxy-Address" you can enforce the browser to use a proxy server.
+
+Example:
+
+```
+X-Proxy-Address: http://localhost:8080
+```
