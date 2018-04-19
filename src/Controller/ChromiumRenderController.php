@@ -32,18 +32,25 @@ class ChromiumRenderController implements RenderInterface
      */
     private $waitForProcessTime;
 
+    /**
+     * @var int $delay
+     */
+    private $delay;
+
     public function __construct(
         string $chromeBinary = 'chromium',
         bool $withImages = false,
         string $windowSize = '1920x1080',
         int $openProcessLimit = 3,
-        int $waitForProcessTime = 4)
+        int $waitForProcessTime = 4,
+        int $delay = 0)
     {
         $this->chromeBinary       = $chromeBinary;
         $this->withImages         = $withImages;
         $this->windowSize         = $windowSize;
         $this->openProcessLimit   = $openProcessLimit;
         $this->waitForProcessTime = $waitForProcessTime;
+        $this->delay              = $delay;
     }
 
     /**
@@ -62,6 +69,7 @@ class ChromiumRenderController implements RenderInterface
         $command = $this->chromeBinary .
                    ' --headless --no-sandbox --disable-gpu ' . $blinkSettings .
                    ' ' . $this->buildProxyArgument($request) .
+                   ' ' . $this->buildDelayArgument() .
                    ' --dump-dom --window-size=' . $this->windowSize . ' "' . $url . '"';
 
         if (!$this->canSpawnNewProcess()) {
@@ -93,6 +101,15 @@ class ChromiumRenderController implements RenderInterface
         }
 
         return '--proxy-server=' . $proxyAddress;
+    }
+
+    private function buildDelayArgument(): string
+    {
+        if (!$this->delay) {
+            return '';
+        }
+
+        return ' --virtual-time-budget=' . $this->delay . ' ';
     }
 
     private function canSpawnNewProcess(): bool

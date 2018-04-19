@@ -1,0 +1,4 @@
+#
+# Regenerating the optimized pages for SEO
+#
+00 */8 * * * cd /www/frontend-prerenderer && make regenerate_cached_pages
