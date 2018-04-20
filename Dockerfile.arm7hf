@@ -40,7 +40,7 @@ RUN [ "cross-build-end" ]
 
 # add the whole application and pre-build
 ADD . /www/frontend-prerenderer
-RUN cd /www/frontend-prerenderer && make deploy
+RUN cd /www/frontend-prerenderer && make deploy migrate
 
 VOLUME /www/frontend-prerenderer
 EXPOSE 80

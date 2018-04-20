@@ -27,7 +27,7 @@ RUN chmod +x entrypoint-prerenderer.sh
 
 # add the whole application and pre-build
 ADD . /www/frontend-prerenderer
-RUN cd /www/frontend-prerenderer && make deploy
+RUN cd /www/frontend-prerenderer && make deploy migrate
 
 EXPOSE 80
 EXPOSE 9000
