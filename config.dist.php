@@ -3,7 +3,7 @@
 function get_env_array(string $name, array $default) {
     return array_map(
         function (string $str) { return trim($str); },
-        isset($_SERVER[$name]) ? explode(',', $name) : $default
+        isset($_SERVER[$name]) ? explode(',', $_SERVER[$name]) : $default
     );
 }
 
