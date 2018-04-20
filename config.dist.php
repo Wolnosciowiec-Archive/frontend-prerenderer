@@ -3,20 +3,20 @@
 function get_env_array(string $name, array $default) {
     return array_map(
         function (string $str) { return trim($str); },
-        isset($_ENV[$name]) ? explode(',', $name) : $default
+        isset($_SERVER[$name]) ? explode(',', $name) : $default
     );
 }
 
 function get_env_integer(string $name, int $default) {
-    return isset($_ENV[$name]) ? (int) $_ENV[$name] : $default;
+    return isset($_SERVER[$name]) ? (int) $_SERVER[$name] : $default;
 }
 
 function get_env_boolean(string $name, bool $default) {
-    return isset($_ENV[$name]) ? (bool) $_ENV[$name] : $default;
+    return isset($_SERVER[$name]) ? (bool) $_SERVER[$name] : $default;
 }
 
 function get_env_string(string $name, string $default) {
-    return isset($_ENV[$name]) ? (string) $_ENV[$name] : $default;
+    return isset($_SERVER[$name]) ? (string) $_SERVER[$name] : $default;
 }
 
 return [
