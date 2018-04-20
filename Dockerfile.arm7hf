@@ -16,6 +16,7 @@ ENV FP_OPEN_PROCESS_LIMIT 3
 ENV FP_WAIT_FOR_PROCESS_TIME 4
 
 RUN [ "cross-build-start" ]
+
 RUN echo "deb http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list
 RUN usermod -u 1000 www-data \
     && groupmod -g 1000 www-data \
@@ -36,11 +37,12 @@ ADD docker/common/etc/nginx/nginx.conf /etc/nginx/nginx.conf
 ADD docker/common/etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/default
 ADD docker/common/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x entrypoint-prerenderer.sh
-RUN [ "cross-build-end" ]
 
 # add the whole application and pre-build
 ADD . /www/frontend-prerenderer
 RUN cd /www/frontend-prerenderer && make deploy migrate
+
+RUN [ "cross-build-end" ]
 
 VOLUME /www/frontend-prerenderer
 EXPOSE 80
