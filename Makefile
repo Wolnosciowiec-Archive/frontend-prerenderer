@@ -52,4 +52,5 @@ regenerate_cached_pages:
 
 ## Run application test suites
 test:
-	./vendor/bin/phpunit -vvv
+	./vendor/bin/phpunit -vvv --coverage-text
+
