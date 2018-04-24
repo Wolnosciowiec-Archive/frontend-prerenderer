@@ -15,7 +15,7 @@ ENV FP_WINDOW_SIZE "1920x1080"
 ENV FP_OPEN_PROCESS_LIMIT 3
 ENV FP_WAIT_FOR_PROCESS_TIME 4
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes nginx make php7.1-xml
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes nginx make php7.1-xml
 
 ADD docker/common/etc/crontab /etc/crontabs/node
 ADD docker/common/entrypoint-prerenderer.sh /entrypoint-prerenderer.sh
