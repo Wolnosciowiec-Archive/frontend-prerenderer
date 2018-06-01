@@ -9,7 +9,7 @@
         "jonnyw/php-phantomjs": "dev-master",
         "symfony/dependency-injection": "3.3.9",
         "symfony/http-foundation": "^4.0",
-        "symfony/yaml": "3.3.9",
+        "symfony/yaml": "3.3.17",
         "symfony/console": "3.3.9",
         "robmorgan/phinx": "^0.9.1",
         "php-di/php-di": "^6.0"
